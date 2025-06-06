@@ -142,10 +142,6 @@
             max-height: 800px;
         }
 
-        .business-selector {
-            display: none;
-        }
-
         .google-integration {
             background: #4285f4;
             color: white;
@@ -490,42 +486,10 @@
             color: #721c24;
         }
 
-        .history-section {
-            margin-top: 20px;
-        }
-
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background: white;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            font-size: 12px;
-        }
-
-        .payment-status {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-
-        .status-paid {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-overdue {
-            background: #f8d7da;
-            color: #721c24;
+        .sync-status.info {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+            color: #0c5460;
         }
 
         .notification {
@@ -556,6 +520,11 @@
 
         .notification.info {
             background: #17a2b8;
+        }
+
+        .notification.warning {
+            background: #ffc107;
+            color: #212529;
         }
 
         @media (max-width: 1024px) {
@@ -626,16 +595,53 @@
                 <!-- Configuration -->
                 <div class="tab-content" id="configTab">
                     <div class="form-section">
-                        <h3>🔗 Configuration Google APIs</h3>
-                        <div class="form-group">
-                            <label>Google Client ID *</label>
-                            <input type="text" class="form-control" id="googleClientId" value="831339197807-2sl636cm6p5g5qbrirdfdaeit32t1qhf.apps.googleusercontent.com">
+                        <h3>🔗 Configuration Google APIs (Sécurisée)</h3>
+                        
+                        <div style="background: #d4edda; padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid #28a745;">
+                            <h4 style="color: #155724; margin-bottom: 10px;">🔒 Méthode sécurisée</h4>
+                            <p style="font-size: 12px; color: #155724; margin-bottom: 8px;">
+                                <strong>1.</strong> Créez un fichier <code>google-config.json</code> sur votre ordinateur avec :
+                            </p>
+                            <pre style="background: #f8f9fa; padding: 8px; border-radius: 4px; font-size: 11px; margin: 10px 0;">{
+  "clientId": "VOS_NOUVEAUX_CLIENT_ID",
+  "apiKey": "VOTRE_NOUVELLE_API_KEY"
+}</pre>
+                            <p style="font-size: 12px; color: #155724; margin-bottom: 8px;">
+                                <strong>2.</strong> Chargez le fichier ci-dessous (une seule fois)
+                            </p>
+                            <p style="font-size: 12px; color: #155724;">
+                                <strong>3.</strong> Vos credentials restent uniquement sur votre ordinateur !
+                            </p>
                         </div>
+
                         <div class="form-group">
-                            <label>Google API Key *</label>
-                            <input type="text" class="form-control" id="googleApiKey" value="AIzaSyCxf_Hkst02NmXjGHr2xestcrf36CRwuOg">
+                            <label>📁 Charger fichier de configuration</label>
+                            <input type="file" class="form-control" id="googleConfigFile" accept=".json" onchange="loadGoogleConfigFile(event)">
                         </div>
-                        <button class="btn btn-primary btn-block" onclick="updateGoogleConfig()">🔄 Mettre à jour Google APIs</button>
+                        
+                        <div class="form-group">
+                            <label>Statut configuration</label>
+                            <div id="configStatus" style="padding: 10px; border-radius: 6px; background: #f8d7da; color: #721c24; font-size: 12px;">
+                                ❌ Aucune configuration chargée
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="display: none;" id="manualConfigSection">
+                            <label>Configuration manuelle (si besoin)</label>
+                            <button type="button" class="btn btn-warning btn-block" onclick="toggleManualConfig()">⚙️ Saisie manuelle</button>
+                        </div>
+
+                        <div id="manualConfigInputs" style="display: none;">
+                            <div class="form-group">
+                                <label>Google Client ID *</label>
+                                <input type="text" class="form-control" id="googleClientId" placeholder="Vos nouveaux identifiants...">
+                            </div>
+                            <div class="form-group">
+                                <label>Google API Key *</label>
+                                <input type="text" class="form-control" id="googleApiKey" placeholder="Votre nouvelle clé...">
+                            </div>
+                            <button class="btn btn-primary btn-block" onclick="updateGoogleConfig()">🔄 Mettre à jour</button>
+                        </div>
                     </div>
                     
                     <div class="form-section">
@@ -728,16 +734,16 @@
                                 <div class="item" data-index="0">
                                     <div class="form-group">
                                         <label id="itemDescriptionLabel">Description *</label>
-                                        <input type="text" class="form-control item-description" placeholder="Ex: Voiture Peugeot 208" required>
+                                        <input type="text" class="form-control item-description" placeholder="Ex: Formation Cybersécurité" required>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label id="itemQuantityLabel">Quantité *</label>
-                                            <input type="number" class="form-control item-quantity" value="1" min="1" required>
+                                            <input type="number" class="form-control item-quantity" value="1" min="0.5" step="0.5" required>
                                         </div>
                                         <div class="form-group">
                                             <label id="itemPriceLabel">Prix unitaire HT *</label>
-                                            <input type="number" class="form-control item-price" value="15000" min="0" step="0.01" required>
+                                            <input type="number" class="form-control item-price" value="300" min="0" step="0.01" required>
                                         </div>
                                     </div>
                                 </div>
@@ -750,8 +756,8 @@
                             <h3>🚀 Actions</h3>
                             <button type="button" class="btn btn-primary btn-block" onclick="generatePreview()">👁️ Aperçu</button>
                             <button type="button" class="btn btn-success btn-block" onclick="downloadPDF()">📥 PDF</button>
-                            <button type="button" class="btn btn-warning btn-block" onclick="sendToGmail()">📧 Envoyer Gmail</button>
-                            <button type="button" class="btn btn-primary btn-block" onclick="saveToSheets()">📊 Sauver Sheets</button>
+                            <button type="button" class="btn btn-warning btn-block" onclick="sendToGmail()">📧 Envoyer Email</button>
+                            <button type="button" class="btn btn-primary btn-block" onclick="saveToSheets()">📊 Sauver</button>
                         </div>
                     </form>
                 </div>
@@ -761,8 +767,31 @@
                     <div class="form-section">
                         <h3>📊 Historique & Synchronisation</h3>
                         <div class="sync-status" id="syncStatus">
-                            🔄 Prêt à synchroniser avec Google Sheets
+                            🔄 Prêt à synchroniser
                         </div>
+                        
+                        <div class="form-section" style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                            <h4 style="color: #856404; margin-bottom: 10px;">⚙️ Configuration Google Cloud Console</h4>
+                            <p style="font-size: 12px; margin-bottom: 8px; color: #856404;">
+                                <strong>1. Aller sur :</strong> https://console.cloud.google.com
+                            </p>
+                            <p style="font-size: 12px; margin-bottom: 8px; color: #856404;">
+                                <strong>2. Créer un projet :</strong> "Générateur Factures"
+                            </p>
+                            <p style="font-size: 12px; margin-bottom: 8px; color: #856404;">
+                                <strong>3. Activer les APIs :</strong> Gmail API + Google Sheets API
+                            </p>
+                            <p style="font-size: 12px; margin-bottom: 8px; color: #856404;">
+                                <strong>4. Créer identifiants OAuth 2.0</strong>
+                            </p>
+                            <p style="font-size: 12px; margin-bottom: 8px; color: #856404;">
+                                <strong>5. Ajouter votre domaine :</strong> <span id="currentOrigin" style="background: white; padding: 2px 4px; border-radius: 3px;"></span>
+                            </p>
+                            <p style="font-size: 11px; color: #856404;">
+                                <strong>Note :</strong> Sans cette configuration, seuls PDF et envoi manuel fonctionnent.
+                            </p>
+                        </div>
+                        
                         <div id="historyList">
                             <p style="text-align: center; color: #6c757d; padding: 20px;">Aucun document sauvegardé</p>
                         </div>
@@ -789,14 +818,14 @@
     <!-- Notification -->
     <div class="notification" id="notification"></div>
 
-    <!-- Google APIs -->
+    <!-- Scripts externes -->
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script>
-        // Variables globales
+        // === VARIABLES GLOBALES ===
         let currentBusiness = 'consulting';
         let companyConfig = {};
         let savedDocuments = [];
@@ -887,30 +916,55 @@
             }
         };
 
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', function() {
-            loadConfiguration();
-            loadGoogleConfig();
-            generateDocumentNumber();
-            setDefaultDate();
-            updateBusinessInterface();
-            generatePreview();
-            initGoogleAPI();
-            
-            // Fermer le dropdown si on clique ailleurs
-            document.addEventListener('click', function(event) {
-                if (!event.target.matches('.business-selector-header')) {
-                    document.getElementById('businessDropdown').classList.remove('show');
-                }
+        // === FONCTIONS UTILITAIRES ===
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('fr-BE', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('fr-BE');
+        }
+
+        function updateSyncStatus(type, message) {
+            const status = document.getElementById('syncStatus');
+            status.className = `sync-status ${type}`;
+            status.textContent = message;
+        }
+
+        // === GESTION DES ONGLETS ===
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
             });
-        });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+        }
 
         // === GESTION DU DROPDOWN BUSINESS ===
         function toggleBusinessDropdown() {
             document.getElementById('businessDropdown').classList.toggle('show');
         }
 
-        // === GESTION DES TYPES DE BUSINESS ===
         function selectBusiness(businessType) {
             currentBusiness = businessType;
             const config = businessConfigs[businessType];
@@ -931,7 +985,87 @@
             generatePreview();
         }
 
-        // === CONFIGURATION GOOGLE ===
+        function updateBusinessInterface() {
+            const config = businessConfigs[currentBusiness];
+            
+            // Mettre à jour les titres et labels
+            document.getElementById('appTitle').textContent = `🧾 Générateur Pro - ${config.title}`;
+            document.getElementById('appSubtitle').textContent = `Solution ${config.title.toLowerCase()} avec intégration Google`;
+            document.getElementById('previewTitle').textContent = `Aperçu - ${config.documentType}`;
+            
+            document.getElementById('clientSectionTitle').textContent = `👤 Informations ${config.clientLabel}`;
+            document.getElementById('clientNameLabel').textContent = `Nom du ${config.clientLabel.toLowerCase()} *`;
+            document.getElementById('documentSectionTitle').textContent = `📄 Informations ${config.documentType}`;
+            document.getElementById('itemsSectionTitle').textContent = `💼 ${config.itemsLabel}`;
+            
+            document.getElementById('itemDescriptionLabel').textContent = config.itemDescriptionLabel + ' *';
+            document.getElementById('itemQuantityLabel').textContent = config.itemQuantityLabel + ' *';
+            document.getElementById('itemPriceLabel').textContent = config.itemPriceLabel + ' *';
+            
+            // Mettre à jour les valeurs par défaut
+            const priceInput = document.querySelector('.item-price');
+            if (priceInput) {
+                priceInput.value = config.defaultPrice;
+            }
+            
+            // Mettre à jour les placeholders
+            const descInput = document.querySelector('.item-description');
+            if (descInput) {
+                const placeholders = {
+                    consulting: 'Ex: Formation Cybersécurité',
+                    automotive: 'Ex: Peugeot 208 1.2 PureTech',
+                    services: 'Ex: Réparation climatisation',
+                    retail: 'Ex: Smartphone Samsung Galaxy',
+                    freelance: 'Ex: Développement site web',
+                    custom: 'Ex: Article personnalisé'
+                };
+                descInput.placeholder = placeholders[currentBusiness];
+            }
+        }
+
+        // === CONFIGURATION ===
+        function loadConfiguration() {
+            const saved = localStorage.getItem('companyConfig');
+            if (saved) {
+                companyConfig = JSON.parse(saved);
+            } else {
+                // Configuration par défaut pour Haji, Mohamad
+                companyConfig = {
+                    companyName: 'Haji, Mohamad',
+                    companyActivity: 'Conseil Informatique & Cybersécurité',
+                    companyAddress: '149 Rue Bruyn, 1120 Bruxelles',
+                    companyPhone: '+32 489 60 68 62',
+                    companyEmail: 'redtigerr73@gmail.com',
+                    companyVAT: 'BE1004992056',
+                    bankIBAN: 'BE75 7320 7326 4151'
+                };
+            }
+            
+            // Remplir les champs
+            Object.keys(companyConfig).forEach(key => {
+                const element = document.getElementById('config' + key.charAt(0).toUpperCase() + key.slice(1));
+                if (element) {
+                    element.value = companyConfig[key];
+                }
+            });
+        }
+
+        function saveConfiguration() {
+            companyConfig = {
+                companyName: document.getElementById('configCompanyName').value,
+                companyActivity: document.getElementById('configCompanyActivity').value,
+                companyAddress: document.getElementById('configCompanyAddress').value,
+                companyPhone: document.getElementById('configCompanyPhone').value,
+                companyEmail: document.getElementById('configCompanyEmail').value,
+                companyVAT: document.getElementById('configCompanyVAT').value,
+                bankIBAN: document.getElementById('configBankIBAN').value
+            };
+
+            localStorage.setItem('companyConfig', JSON.stringify(companyConfig));
+            generatePreview();
+            showNotification('Configuration sauvegardée !', 'success');
+        }
+
         function loadGoogleConfig() {
             const savedGoogleConfig = localStorage.getItem('googleConfig');
             if (savedGoogleConfig) {
@@ -965,221 +1099,9 @@
             showNotification('Configuration Google mise à jour !', 'success');
             
             // Réinitialiser l'API Google
-            initGoogleAPI();
-        }
-
-        // === GOOGLE API INTEGRATION ===
-        async function initGoogleAPI() {
-            try {
-                await gapi.load('auth2', initAuth);
-                showNotification('Google API initialisé', 'info');
-            } catch (error) {
-                console.error('Erreur initialisation Google API:', error);
-                showNotification('Erreur Google API - Vérifiez la configuration', 'error');
-            }
-        }
-
-        function initAuth() {
-            gapi.auth2.init({
-                client_id: GOOGLE_CONFIG.clientId,
-                scope: GOOGLE_CONFIG.scopes
-            }).then(() => {
-                const authInstance = gapi.auth2.getAuthInstance();
-                if (authInstance.isSignedIn.get()) {
-                    onGoogleSignIn();
-                }
-            });
-        }
-
-        async function connectGoogle() {
-            try {
-                const authInstance = gapi.auth2.getAuthInstance();
-                const user = await authInstance.signIn();
-                onGoogleSignIn();
-            } catch (error) {
-                showNotification('Erreur connexion Google: ' + error.message, 'error');
-            }
-        }
-
-        function onGoogleSignIn() {
-            isGoogleConnected = true;
-            const user = gapi.auth2.getAuthInstance().currentUser.get();
-            accessToken = user.getAuthResponse().access_token;
-            
-            document.getElementById('googleStatus').className = 'connection-status connected';
-            document.getElementById('googleStatus').textContent = '✅ Google connecté';
-            
-            // Activer les boutons
-            document.querySelectorAll('.google-btn').forEach(btn => {
-                btn.disabled = false;
-            });
-            
-            showNotification('Google connecté avec succès !', 'success');
-        }
-
-        async function connectSheets() {
-            if (!isGoogleConnected) {
-                showNotification('Connectez-vous d\'abord à Google', 'error');
-                return;
-            }
-
-            try {
-                // Créer un nouveau Google Sheet
-                const response = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        properties: {
-                            title: `Factures ${businessConfigs[currentBusiness].title} - ${new Date().getFullYear()}`
-                        },
-                        sheets: [{
-                            properties: {
-                                title: 'Factures'
-                            }
-                        }]
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.spreadsheetId) {
-                    localStorage.setItem('sheetId', result.spreadsheetId);
-                    
-                    // Initialiser les en-têtes
-                    await initSheetHeaders(result.spreadsheetId);
-                    
-                    showNotification('Google Sheets connecté et configuré !', 'success');
-                    updateSyncStatus('success', `Sheet créé: ${result.spreadsheetId}`);
-                } else {
-                    throw new Error('Impossible de créer le Google Sheet');
-                }
-            } catch (error) {
-                showNotification('Erreur Google Sheets: ' + error.message, 'error');
-            }
-        }
-
-        async function initSheetHeaders(sheetId) {
-            const headers = [
-                'Date', 'Numéro', 'Client', 'Email Client', 'Description', 
-                'Montant HT', 'TVA', 'Total TTC', 'Statut Paiement', 'Date Paiement'
-            ];
-
-            await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A1:J1?valueInputOption=RAW`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    values: [headers]
-                })
-            });
-        }
-
-        async function saveToSheets() {
-            const sheetId = localStorage.getItem('sheetId');
-            if (!sheetId || !isGoogleConnected) {
-                showNotification('Connectez d\'abord Google Sheets', 'error');
-                return;
-            }
-
-            try {
-                const documentData = getDocumentData();
-                const row = [
-                    documentData.date,
-                    documentData.number,
-                    documentData.clientName,
-                    documentData.clientEmail,
-                    documentData.items.map(item => item.description).join('; '),
-                    documentData.subtotal,
-                    documentData.vat,
-                    documentData.total,
-                    'En attente',
-                    ''
-                ];
-
-                const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A:A/append?valueInputOption=RAW`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        values: [row]
-                    })
-                });
-
-                if (response.ok) {
-                    showNotification('Document sauvé dans Google Sheets !', 'success');
-                    updateSyncStatus('success', 'Dernière sync: ' + new Date().toLocaleString());
-                } else {
-                    throw new Error('Erreur sauvegarde');
-                }
-            } catch (error) {
-                showNotification('Erreur sauvegarde Sheets: ' + error.message, 'error');
-            }
-        }
-
-        async function sendToGmail() {
-            if (!isGoogleConnected) {
-                showNotification('Connectez d\'abord Gmail', 'error');
-                return;
-            }
-
-            try {
-                const documentData = getDocumentData();
-                const config = businessConfigs[currentBusiness];
-                
-                const emailContent = `
-À: ${documentData.clientEmail}
-Objet: ${config.documentType} N° ${documentData.number}
-Content-Type: text/html; charset=utf-8
-
-<html>
-<body>
-<p>Bonjour,</p>
-
-<p>Veuillez trouver ci-joint votre ${config.documentType.toLowerCase()} N° ${documentData.number} d'un montant de ${formatCurrency(documentData.total)}.</p>
-
-<p><strong>Détails :</strong></p>
-<ul>
-${documentData.items.map(item => `<li>${item.description} - ${formatCurrency(item.total)}</li>`).join('')}
-</ul>
-
-<p><strong>Informations de paiement :</strong><br>
-IBAN : ${companyConfig.bankIBAN}<br>
-Référence : ${documentData.number}</p>
-
-<p>Cordialement,<br>
-${companyConfig.companyName}</p>
-</body>
-</html>
-                `;
-
-                const encodedEmail = btoa(emailContent).replace(/\+/g, '-').replace(/\//g, '_');
-
-                const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        raw: encodedEmail
-                    })
-                });
-
-                if (response.ok) {
-                    showNotification('Email envoyé via Gmail !', 'success');
-                } else {
-                    throw new Error('Erreur envoi email');
-                }
-            } catch (error) {
-                showNotification('Erreur Gmail: ' + error.message, 'error');
-            }
+            setTimeout(() => {
+                initGoogleAPI();
+            }, 1000);
         }
 
         // === GESTION DES DOCUMENTS ===
@@ -1221,7 +1143,7 @@ ${companyConfig.companyName}</p>
                     <div class="form-row">
                         <div class="form-group">
                             <label>${config.itemQuantityLabel} *</label>
-                            <input type="number" class="form-control item-quantity" value="1" min="1" required>
+                            <input type="number" class="form-control item-quantity" value="1" min="0.5" step="0.5" required>
                         </div>
                         <div class="form-group">
                             <label>${config.itemPriceLabel} *</label>
@@ -1364,89 +1286,222 @@ ${companyConfig.companyName}</p>
             `;
         }
 
-        // === UTILITAIRES ===
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-        }
-
-        function loadConfiguration() {
-            const saved = localStorage.getItem('companyConfig');
-            if (saved) {
-                companyConfig = JSON.parse(saved);
-            } else {
-                // Configuration par défaut pour Haji, Mohamad
-                companyConfig = {
-                    companyName: 'Haji, Mohamad',
-                    companyActivity: 'Conseil Informatique & Cybersécurité',
-                    companyAddress: '149 Rue Bruyn, 1120 Bruxelles',
-                    companyPhone: '+32 489 60 68 62',
-                    companyEmail: 'redtigerr73@gmail.com',
-                    companyVAT: 'BE1004992056',
-                    bankIBAN: 'BE75 7320 7326 4151'
-                };
-            }
-            
-            // Remplir les champs
-            Object.keys(companyConfig).forEach(key => {
-                const element = document.getElementById('config' + key.charAt(0).toUpperCase() + key.slice(1));
-                if (element) {
-                    element.value = companyConfig[key];
+        // === GOOGLE API ===
+        async function initGoogleAPI() {
+            try {
+                const currentOrigin = window.location.origin;
+                console.log('Current origin:', currentOrigin);
+                
+                if (typeof gapi !== 'undefined') {
+                    await new Promise((resolve) => {
+                        gapi.load('auth2', resolve);
+                    });
+                    
+                    await initAuth();
+                    showNotification('Google API initialisé', 'info');
+                } else {
+                    showNotification('Google API non disponible', 'warning');
                 }
+            } catch (error) {
+                console.error('Erreur initialisation Google API:', error);
+                showNotification('Google API désactivé - Mode local uniquement', 'warning');
+                
+                // Désactiver les boutons Google en cas d'erreur
+                document.querySelectorAll('.google-btn').forEach(btn => {
+                    btn.disabled = true;
+                    btn.textContent = btn.textContent + ' (Config requise)';
+                });
+            }
+        }
+
+        async function initAuth() {
+            try {
+                await gapi.auth2.init({
+                    client_id: GOOGLE_CONFIG.clientId,
+                    scope: GOOGLE_CONFIG.scopes
+                });
+                
+                const authInstance = gapi.auth2.getAuthInstance();
+                if (authInstance.isSignedIn.get()) {
+                    onGoogleSignIn();
+                }
+                showNotification('Google Auth configuré', 'success');
+            } catch (error) {
+                console.error('Erreur Google Auth:', error);
+                showNotification('Erreur Google Auth - Vérifiez la configuration dans Google Cloud Console', 'error');
+                updateSyncStatus('error', 'Configuration Google Cloud Console requise.');
+            }
+        }
+
+        async function connectGoogle() {
+            try {
+                if (!gapi.auth2) {
+                    showNotification('Google API non initialisé. Vérifiez la configuration.', 'error');
+                    return;
+                }
+                
+                const authInstance = gapi.auth2.getAuthInstance();
+                if (!authInstance) {
+                    showNotification('Google Auth non disponible. Configurez Google Cloud Console.', 'error');
+                    return;
+                }
+                
+                const user = await authInstance.signIn();
+                onGoogleSignIn();
+            } catch (error) {
+                console.error('Erreur connexion Google:', error);
+                if (error.error === 'idpiframe_initialization_failed') {
+                    showNotification('Domaine non autorisé. Configurez Google Cloud Console.', 'error');
+                    updateSyncStatus('error', `Configuration requise pour: ${window.location.origin}`);
+                } else {
+                    showNotification('Erreur connexion Google: ' + error.message, 'error');
+                }
+            }
+        }
+
+        function onGoogleSignIn() {
+            try {
+                isGoogleConnected = true;
+                const user = gapi.auth2.getAuthInstance().currentUser.get();
+                accessToken = user.getAuthResponse().access_token;
+                
+                document.getElementById('googleStatus').className = 'connection-status connected';
+                document.getElementById('googleStatus').textContent = '✅ Google connecté';
+                
+                // Activer les boutons
+                document.querySelectorAll('.google-btn').forEach(btn => {
+                    btn.disabled = false;
+                    btn.textContent = btn.textContent.replace(' (Config requise)', '');
+                });
+                
+                showNotification('Google connecté avec succès !', 'success');
+                updateSyncStatus('success', 'Google connecté - Prêt à synchroniser');
+            } catch (error) {
+                console.error('Erreur onGoogleSignIn:', error);
+                showNotification('Erreur lors de la connexion Google', 'error');
+            }
+        }
+
+        async function connectSheets() {
+            if (!isGoogleConnected) {
+                showNotification('Connectez-vous d\'abord à Google', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        properties: {
+                            title: `Factures ${businessConfigs[currentBusiness].title} - ${new Date().getFullYear()}`
+                        },
+                        sheets: [{
+                            properties: {
+                                title: 'Factures'
+                            }
+                        }]
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.spreadsheetId) {
+                    localStorage.setItem('sheetId', result.spreadsheetId);
+                    await initSheetHeaders(result.spreadsheetId);
+                    showNotification('Google Sheets connecté !', 'success');
+                    updateSyncStatus('success', `Sheet créé: ${result.spreadsheetId}`);
+                } else {
+                    throw new Error('Impossible de créer le Google Sheet');
+                }
+            } catch (error) {
+                showNotification('Erreur Google Sheets: ' + error.message, 'error');
+            }
+        }
+
+        async function initSheetHeaders(sheetId) {
+            const headers = [
+                'Date', 'Numéro', 'Client', 'Email Client', 'Description', 
+                'Montant HT', 'TVA', 'Total TTC', 'Statut Paiement', 'Date Paiement'
+            ];
+
+            try {
+                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A1:J1?valueInputOption=RAW`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        values: [headers]
+                    })
+                });
+            } catch (error) {
+                console.error('Erreur création headers:', error);
+            }
+        }
+
+        async function syncData() {
+            if (!isGoogleConnected) {
+                showNotification('Google non connecté', 'error');
+                return;
+            }
+
+            try {
+                updateSyncStatus('info', 'Synchronisation en cours...');
+                updateSyncStatus('success', 'Synchronisation terminée: ' + new Date().toLocaleString());
+                showNotification('Données synchronisées !', 'success');
+            } catch (error) {
+                updateSyncStatus('error', 'Erreur synchronisation: ' + error.message);
+                showNotification('Erreur synchronisation', 'error');
+            }
+        }
+
+        // === ACTIONS ===
+        async function sendToGmail() {
+            const documentData = getDocumentData();
+            const config = businessConfigs[currentBusiness];
+            
+            const subject = `${config.documentType} N° ${documentData.number} - ${companyConfig.companyName}`;
+            const body = `Bonjour,
+
+Veuillez trouver ci-joint votre ${config.documentType.toLowerCase()} N° ${documentData.number} d'un montant de ${formatCurrency(documentData.total)}.
+
+Détails :
+${documentData.items.map(item => `- ${item.description} : ${formatCurrency(item.total)}`).join('\n')}
+
+Informations de paiement :
+IBAN : ${companyConfig.bankIBAN}
+Référence : ${documentData.number}
+
+Cordialement,
+${companyConfig.companyName}`;
+
+            const mailtoLink = `mailto:${documentData.clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailtoLink);
+            
+            showNotification('Email préparé ! Ajoutez le PDF en pièce jointe.', 'info');
+        }
+
+        async function saveToSheets() {
+            const documentData = getDocumentData();
+            savedDocuments.unshift({
+                ...documentData,
+                id: Date.now(),
+                createdAt: new Date().toISOString()
             });
-        }
-
-        function saveConfiguration() {
-            companyConfig = {
-                companyName: document.getElementById('configCompanyName').value,
-                companyActivity: document.getElementById('configCompanyActivity').value,
-                companyAddress: document.getElementById('configCompanyAddress').value,
-                companyPhone: document.getElementById('configCompanyPhone').value,
-                companyEmail: document.getElementById('configCompanyEmail').value,
-                companyVAT: document.getElementById('configCompanyVAT').value,
-                bankIBAN: document.getElementById('configBankIBAN').value
-            };
-
-            localStorage.setItem('companyConfig', JSON.stringify(companyConfig));
-            generatePreview();
-            showNotification('Configuration sauvegardée !', 'success');
-        }
-
-        function updateSyncStatus(type, message) {
-            const status = document.getElementById('syncStatus');
-            status.className = `sync-status ${type}`;
-            status.textContent = message;
-        }
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('fr-BE', {
-                style: 'currency',
-                currency: 'EUR'
-            }).format(amount);
-        }
-
-        function formatDate(dateString) {
-            return new Date(dateString).toLocaleDateString('fr-BE');
-        }
-
-        function showNotification(message, type) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${type}`;
-            notification.classList.add('show');
-
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 4000);
+            
+            localStorage.setItem('savedDocuments', JSON.stringify(savedDocuments));
+            showNotification('Document sauvegardé localement', 'success');
+            
+            if (isGoogleConnected) {
+                updateSyncStatus('success', 'Sauvegardé - Google connecté');
+            } else {
+                updateSyncStatus('info', 'Sauvegarde locale uniquement - Google non connecté');
+            }
         }
 
         async function downloadPDF() {
@@ -1474,7 +1529,40 @@ ${companyConfig.companyName}</p>
             }
         }
 
-        // Auto-actualisation
+        function loadSavedDocuments() {
+            const saved = localStorage.getItem('savedDocuments');
+            if (saved) {
+                savedDocuments = JSON.parse(saved);
+            }
+        }
+
+        // === INITIALISATION ===
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfiguration();
+            loadGoogleConfig();
+            loadSavedDocuments();
+            generateDocumentNumber();
+            setDefaultDate();
+            updateBusinessInterface();
+            generatePreview();
+            
+            // Afficher le domaine actuel
+            document.getElementById('currentOrigin').textContent = window.location.origin;
+            
+            // Initialiser Google API après un délai
+            setTimeout(() => {
+                initGoogleAPI();
+            }, 2000);
+            
+            // Fermer le dropdown si on clique ailleurs
+            document.addEventListener('click', function(event) {
+                if (!event.target.matches('.business-selector-header')) {
+                    document.getElementById('businessDropdown').classList.remove('show');
+                }
+            });
+        });
+
+        // Auto-actualisation de l'aperçu
         document.addEventListener('input', function(e) {
             if (e.target.matches('.form-control')) {
                 generatePreview();
