@@ -527,6 +527,18 @@
             color: #212529;
         }
 
+        .config-loaded {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+
+        .config-error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+
         @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -626,7 +638,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group" style="display: none;" id="manualConfigSection">
+                        <div class="form-group">
                             <label>Configuration manuelle (si besoin)</label>
                             <button type="button" class="btn btn-warning btn-block" onclick="toggleManualConfig()">⚙️ Saisie manuelle</button>
                         </div>
@@ -832,10 +844,10 @@
         let isGoogleConnected = false;
         let accessToken = '';
 
-        // Configuration Google API (dynamique)
+        // Configuration Google API (VIDE par défaut pour sécurité)
         let GOOGLE_CONFIG = {
-            apiKey: 'AIzaSyCxf_Hkst02NmXjGHr2xestcrf36CRwuOg',
-            clientId: '831339197807-2sl636cm6p5g5qbrirdfdaeit32t1qhf.apps.googleusercontent.com',
+            apiKey: '',
+            clientId: '',
             discoveryDoc: 'https://sheets.googleapis.com/$discovery/rest?version=v4',
             scopes: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/gmail.send'
         };
@@ -955,9 +967,16 @@
             });
 
             document.getElementById(tabName + 'Tab').classList.add('active');
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
+            
+            // Trouver le bon bouton tab
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(tabName.toLowerCase()) || 
+                    (tabName === 'document' && btn.textContent === 'Document') ||
+                    (tabName === 'config' && btn.textContent === 'Config') ||
+                    (tabName === 'history' && btn.textContent === 'Historique')) {
+                    btn.classList.add('active');
+                }
+            });
         }
 
         // === GESTION DU DROPDOWN BUSINESS ===
@@ -1023,6 +1042,75 @@
             }
         }
 
+        // === CONFIGURATION GOOGLE SÉCURISÉE ===
+        function loadGoogleConfigFile(event) {
+            const file = event.target.files[0];
+            
+            if (!file) {
+                showNotification('Aucun fichier sélectionné', 'warning');
+                return;
+            }
+
+            if (file.type !== 'application/json') {
+                showNotification('Le fichier doit être au format JSON', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    
+                    // Vérifier que les clés requises sont présentes
+                    if (!config.clientId || !config.apiKey) {
+                        throw new Error('Fichier JSON invalide - clientId et apiKey requis');
+                    }
+
+                    // Mettre à jour la configuration
+                    GOOGLE_CONFIG.clientId = config.clientId;
+                    GOOGLE_CONFIG.apiKey = config.apiKey;
+
+                    // Sauvegarder en local (chiffré dans localStorage)
+                    localStorage.setItem('googleConfig', JSON.stringify(config));
+
+                    // Mettre à jour l'interface
+                    const statusDiv = document.getElementById('configStatus');
+                    statusDiv.className = 'config-loaded';
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.style.borderLeftColor = '#28a745';
+                    statusDiv.innerHTML = `✅ Configuration chargée avec succès<br>
+                        <small>Client ID: ${config.clientId.substring(0, 20)}...</small>`;
+
+                    // Remplir les champs manuels (masqués)
+                    document.getElementById('googleClientId').value = config.clientId;
+                    document.getElementById('googleApiKey').value = config.apiKey;
+
+                    showNotification('Configuration Google chargée avec succès !', 'success');
+
+                    // Réinitialiser l'API Google
+                    setTimeout(() => {
+                        initGoogleAPI();
+                    }, 1000);
+
+                } catch (error) {
+                    console.error('Erreur lecture fichier:', error);
+                    showNotification('Erreur lecture fichier: ' + error.message, 'error');
+                    
+                    const statusDiv = document.getElementById('configStatus');
+                    statusDiv.className = 'config-error';
+                    statusDiv.innerHTML = '❌ Erreur lecture fichier JSON';
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function toggleManualConfig() {
+            const inputs = document.getElementById('manualConfigInputs');
+            inputs.style.display = inputs.style.display === 'none' ? 'block' : 'none';
+        }
+
         // === CONFIGURATION ===
         function loadConfiguration() {
             const saved = localStorage.getItem('companyConfig');
@@ -1075,6 +1163,14 @@
                 
                 document.getElementById('googleClientId').value = config.clientId;
                 document.getElementById('googleApiKey').value = config.apiKey;
+
+                // Mettre à jour le statut
+                const statusDiv = document.getElementById('configStatus');
+                statusDiv.className = 'config-loaded';
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.color = '#155724';
+                statusDiv.innerHTML = `✅ Configuration Google chargée<br>
+                    <small>Client ID: ${config.clientId.substring(0, 20)}...</small>`;
             }
         }
 
@@ -1096,6 +1192,15 @@
             };
             
             localStorage.setItem('googleConfig', JSON.stringify(googleConfig));
+            
+            // Mettre à jour le statut
+            const statusDiv = document.getElementById('configStatus');
+            statusDiv.className = 'config-loaded';
+            statusDiv.style.background = '#d4edda';
+            statusDiv.style.color = '#155724';
+            statusDiv.innerHTML = `✅ Configuration mise à jour<br>
+                <small>Client ID: ${clientId.substring(0, 20)}...</small>`;
+            
             showNotification('Configuration Google mise à jour !', 'success');
             
             // Réinitialiser l'API Google
@@ -1289,6 +1394,13 @@
         // === GOOGLE API ===
         async function initGoogleAPI() {
             try {
+                // Vérifier si les credentials sont configurés
+                if (!GOOGLE_CONFIG.clientId || !GOOGLE_CONFIG.apiKey) {
+                    showNotification('Configuration Google requise', 'warning');
+                    updateSyncStatus('warning', 'Chargez votre fichier google-config.json dans Config');
+                    return;
+                }
+
                 const currentOrigin = window.location.origin;
                 console.log('Current origin:', currentOrigin);
                 
@@ -1304,13 +1416,8 @@
                 }
             } catch (error) {
                 console.error('Erreur initialisation Google API:', error);
-                showNotification('Google API désactivé - Mode local uniquement', 'warning');
-                
-                // Désactiver les boutons Google en cas d'erreur
-                document.querySelectorAll('.google-btn').forEach(btn => {
-                    btn.disabled = true;
-                    btn.textContent = btn.textContent + ' (Config requise)';
-                });
+                showNotification('Google API désactivé - Configurez vos credentials', 'warning');
+                updateSyncStatus('error', 'Configuration Google requise');
             }
         }
 
@@ -1335,6 +1442,12 @@
 
         async function connectGoogle() {
             try {
+                if (!GOOGLE_CONFIG.clientId || !GOOGLE_CONFIG.apiKey) {
+                    showNotification('Chargez d\'abord votre fichier google-config.json dans Config', 'error');
+                    showTab('config');
+                    return;
+                }
+
                 if (!gapi.auth2) {
                     showNotification('Google API non initialisé. Vérifiez la configuration.', 'error');
                     return;
