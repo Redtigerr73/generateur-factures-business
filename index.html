@@ -52,6 +52,65 @@
             align-items: center;
         }
 
+        .business-selector-header {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .business-selector-header:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .business-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .business-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-radius: 6px;
+            z-index: 1000;
+            margin-top: 5px;
+        }
+
+        .business-dropdown-content.show {
+            display: block;
+        }
+
+        .business-option {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+            border-radius: 6px;
+            margin: 4px;
+            transition: all 0.3s ease;
+            font-size: 13px;
+        }
+
+        .business-option:hover {
+            background-color: #f1f1f1;
+        }
+
+        .business-option.active {
+            background-color: #667eea;
+            color: white;
+        }
+
         .connection-status {
             padding: 6px 12px;
             border-radius: 20px;
@@ -84,43 +143,7 @@
         }
 
         .business-selector {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .business-selector h3 {
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .business-types {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .business-type {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .business-type:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .business-type.active {
-            background: white;
-            color: #28a745;
+            display: none;
         }
 
         .google-integration {
@@ -557,10 +580,23 @@
     <div class="app-container">
         <div class="app-header">
             <div class="header-content">
-                <h1 id="appTitle">🧾 Générateur Pro Multi-Business</h1>
-                <p id="appSubtitle">Solution complète avec intégration Google</p>
+                <h1 id="appTitle">🧾 Générateur Pro - Conseil Informatique</h1>
+                <p id="appSubtitle">Solution professionnelle avec intégration Google</p>
             </div>
             <div class="header-actions">
+                <div class="business-dropdown">
+                    <button class="business-selector-header" onclick="toggleBusinessDropdown()">
+                        <span id="currentBusinessLabel">💻 Consulting</span> ▼
+                    </button>
+                    <div class="business-dropdown-content" id="businessDropdown">
+                        <div class="business-option active" onclick="selectBusiness('consulting')">💻 Consulting IT</div>
+                        <div class="business-option" onclick="selectBusiness('automotive')">🚗 Garage Auto</div>
+                        <div class="business-option" onclick="selectBusiness('services')">🔧 Services</div>
+                        <div class="business-option" onclick="selectBusiness('retail')">🛍️ Commerce</div>
+                        <div class="business-option" onclick="selectBusiness('freelance')">👤 Freelance</div>
+                        <div class="business-option" onclick="selectBusiness('custom')">⚙️ Custom</div>
+                    </div>
+                </div>
                 <div class="connection-status disconnected" id="googleStatus">
                     ❌ Google déconnecté
                 </div>
@@ -570,19 +606,6 @@
 
         <div class="main-content">
             <div class="sidebar">
-                <!-- Sélecteur de type de business -->
-                <div class="business-selector">
-                    <h3>🏢 Type de Business</h3>
-                    <div class="business-types">
-                        <button class="business-type active" onclick="selectBusiness('consulting')">💻 Consulting</button>
-                        <button class="business-type" onclick="selectBusiness('automotive')">🚗 Auto</button>
-                        <button class="business-type" onclick="selectBusiness('services')">🔧 Services</button>
-                        <button class="business-type" onclick="selectBusiness('retail')">🛍️ Commerce</button>
-                        <button class="business-type" onclick="selectBusiness('freelance')">👤 Freelance</button>
-                        <button class="business-type" onclick="selectBusiness('custom')">⚙️ Custom</button>
-                    </div>
-                </div>
-
                 <!-- Intégration Google -->
                 <div class="google-integration">
                     <h3>🔗 Google Integration</h3>
@@ -603,37 +626,50 @@
                 <!-- Configuration -->
                 <div class="tab-content" id="configTab">
                     <div class="form-section">
+                        <h3>🔗 Configuration Google APIs</h3>
+                        <div class="form-group">
+                            <label>Google Client ID *</label>
+                            <input type="text" class="form-control" id="googleClientId" value="831339197807-2sl636cm6p5g5qbrirdfdaeit32t1qhf.apps.googleusercontent.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Google API Key *</label>
+                            <input type="text" class="form-control" id="googleApiKey" value="AIzaSyCxf_Hkst02NmXjGHr2xestcrf36CRwuOg">
+                        </div>
+                        <button class="btn btn-primary btn-block" onclick="updateGoogleConfig()">🔄 Mettre à jour Google APIs</button>
+                    </div>
+                    
+                    <div class="form-section">
                         <h3>🏢 Votre Entreprise</h3>
                         <div class="form-group">
                             <label>Nom de l'entreprise *</label>
-                            <input type="text" class="form-control" id="configCompanyName" placeholder="Ex: Garage Martin">
+                            <input type="text" class="form-control" id="configCompanyName" placeholder="Ex: Haji, Mohamad" value="Haji, Mohamad">
                         </div>
                         <div class="form-group">
                             <label>Secteur d'activité *</label>
-                            <input type="text" class="form-control" id="configCompanyActivity" placeholder="Ex: Vente automobiles">
+                            <input type="text" class="form-control" id="configCompanyActivity" placeholder="Ex: Conseil Informatique & Cybersécurité" value="Conseil Informatique & Cybersécurité">
                         </div>
                         <div class="form-group">
                             <label>Adresse complète *</label>
-                            <input type="text" class="form-control" id="configCompanyAddress" placeholder="Ex: Rue du Commerce 123, 1000 Bruxelles">
+                            <input type="text" class="form-control" id="configCompanyAddress" placeholder="Ex: 149 Rue Bruyn, 1120 Bruxelles" value="149 Rue Bruyn, 1120 Bruxelles">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Téléphone *</label>
-                                <input type="text" class="form-control" id="configCompanyPhone" placeholder="+32 2 123 45 67">
+                                <input type="text" class="form-control" id="configCompanyPhone" placeholder="+32 489 60 68 62" value="+32 489 60 68 62">
                             </div>
                             <div class="form-group">
                                 <label>Email *</label>
-                                <input type="email" class="form-control" id="configCompanyEmail" placeholder="contact@garage.be">
+                                <input type="email" class="form-control" id="configCompanyEmail" placeholder="redtigerr73@gmail.com" value="redtigerr73@gmail.com">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Numéro TVA *</label>
-                                <input type="text" class="form-control" id="configCompanyVAT" placeholder="BE0123456789">
+                                <input type="text" class="form-control" id="configCompanyVAT" placeholder="BE1004992056" value="BE1004992056">
                             </div>
                             <div class="form-group">
                                 <label>IBAN *</label>
-                                <input type="text" class="form-control" id="configBankIBAN" placeholder="BE12 3456 7890 1234">
+                                <input type="text" class="form-control" id="configBankIBAN" placeholder="BE75 7320 7326 4151" value="BE75 7320 7326 4151">
                             </div>
                         </div>
                         <button class="btn btn-success btn-block" onclick="saveConfiguration()">💾 Sauvegarder</button>
@@ -767,10 +803,10 @@
         let isGoogleConnected = false;
         let accessToken = '';
 
-        // Configuration Google API
-        const GOOGLE_CONFIG = {
-            apiKey: 'VOTRE_API_KEY', // À remplacer
-            clientId: 'VOTRE_CLIENT_ID', // À remplacer
+        // Configuration Google API (dynamique)
+        let GOOGLE_CONFIG = {
+            apiKey: 'AIzaSyCxf_Hkst02NmXjGHr2xestcrf36CRwuOg',
+            clientId: '831339197807-2sl636cm6p5g5qbrirdfdaeit32t1qhf.apps.googleusercontent.com',
             discoveryDoc: 'https://sheets.googleapis.com/$discovery/rest?version=v4',
             scopes: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/gmail.send'
         };
@@ -778,7 +814,8 @@
         // Configuration par type de business
         const businessConfigs = {
             consulting: {
-                title: 'Consultant/Formateur',
+                title: 'Conseil Informatique',
+                icon: '💻',
                 documentType: 'FACTURE',
                 clientLabel: 'Client',
                 itemsLabel: 'Services',
@@ -789,7 +826,8 @@
                 vatRate: 0.21
             },
             automotive: {
-                title: 'Garage Automobile',
+                title: 'Garage Auto',
+                icon: '🚗',
                 documentType: 'FACTURE DE VENTE',
                 clientLabel: 'Acheteur',
                 itemsLabel: 'Véhicules & Services',
@@ -800,7 +838,8 @@
                 vatRate: 0.21
             },
             services: {
-                title: 'Entreprise de Services',
+                title: 'Services',
+                icon: '🔧',
                 documentType: 'DEVIS/FACTURE',
                 clientLabel: 'Client',
                 itemsLabel: 'Prestations',
@@ -811,7 +850,8 @@
                 vatRate: 0.21
             },
             retail: {
-                title: 'Commerce de Détail',
+                title: 'Commerce',
+                icon: '🛍️',
                 documentType: 'BON DE COMMANDE',
                 clientLabel: 'Client',
                 itemsLabel: 'Produits',
@@ -823,6 +863,7 @@
             },
             freelance: {
                 title: 'Freelance',
+                icon: '👤',
                 documentType: 'FACTURE',
                 clientLabel: 'Client',
                 itemsLabel: 'Prestations',
@@ -833,7 +874,8 @@
                 vatRate: 0.21
             },
             custom: {
-                title: 'Personnalisé',
+                title: 'Custom',
+                icon: '⚙️',
                 documentType: 'DOCUMENT',
                 clientLabel: 'Client',
                 itemsLabel: 'Articles',
@@ -848,63 +890,82 @@
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
             loadConfiguration();
+            loadGoogleConfig();
             generateDocumentNumber();
             setDefaultDate();
             updateBusinessInterface();
             generatePreview();
             initGoogleAPI();
+            
+            // Fermer le dropdown si on clique ailleurs
+            document.addEventListener('click', function(event) {
+                if (!event.target.matches('.business-selector-header')) {
+                    document.getElementById('businessDropdown').classList.remove('show');
+                }
+            });
         });
+
+        // === GESTION DU DROPDOWN BUSINESS ===
+        function toggleBusinessDropdown() {
+            document.getElementById('businessDropdown').classList.toggle('show');
+        }
 
         // === GESTION DES TYPES DE BUSINESS ===
         function selectBusiness(businessType) {
             currentBusiness = businessType;
+            const config = businessConfigs[businessType];
             
-            // Mettre à jour l'interface
-            document.querySelectorAll('.business-type').forEach(btn => {
-                btn.classList.remove('active');
+            // Mettre à jour le label du dropdown
+            document.getElementById('currentBusinessLabel').textContent = `${config.icon} ${config.title}`;
+            
+            // Mettre à jour les options actives
+            document.querySelectorAll('.business-option').forEach(option => {
+                option.classList.remove('active');
             });
             event.target.classList.add('active');
+            
+            // Fermer le dropdown
+            document.getElementById('businessDropdown').classList.remove('show');
             
             updateBusinessInterface();
             generatePreview();
         }
 
-        function updateBusinessInterface() {
-            const config = businessConfigs[currentBusiness];
+        // === CONFIGURATION GOOGLE ===
+        function loadGoogleConfig() {
+            const savedGoogleConfig = localStorage.getItem('googleConfig');
+            if (savedGoogleConfig) {
+                const config = JSON.parse(savedGoogleConfig);
+                GOOGLE_CONFIG.clientId = config.clientId;
+                GOOGLE_CONFIG.apiKey = config.apiKey;
+                
+                document.getElementById('googleClientId').value = config.clientId;
+                document.getElementById('googleApiKey').value = config.apiKey;
+            }
+        }
+
+        function updateGoogleConfig() {
+            const clientId = document.getElementById('googleClientId').value;
+            const apiKey = document.getElementById('googleApiKey').value;
             
-            // Mettre à jour les titres et labels
-            document.getElementById('appTitle').textContent = `🧾 ${config.title}`;
-            document.getElementById('appSubtitle').textContent = `Solution ${config.title.toLowerCase()}`;
-            document.getElementById('previewTitle').textContent = `Aperçu - ${config.documentType}`;
-            
-            document.getElementById('clientSectionTitle').textContent = `👤 Informations ${config.clientLabel}`;
-            document.getElementById('clientNameLabel').textContent = `Nom du ${config.clientLabel.toLowerCase()} *`;
-            document.getElementById('documentSectionTitle').textContent = `📄 Informations ${config.documentType}`;
-            document.getElementById('itemsSectionTitle').textContent = `💼 ${config.itemsLabel}`;
-            
-            document.getElementById('itemDescriptionLabel').textContent = config.itemDescriptionLabel + ' *';
-            document.getElementById('itemQuantityLabel').textContent = config.itemQuantityLabel + ' *';
-            document.getElementById('itemPriceLabel').textContent = config.itemPriceLabel + ' *';
-            
-            // Mettre à jour les valeurs par défaut
-            const priceInput = document.querySelector('.item-price');
-            if (priceInput) {
-                priceInput.value = config.defaultPrice;
+            if (!clientId || !apiKey) {
+                showNotification('Veuillez remplir les identifiants Google', 'error');
+                return;
             }
             
-            // Mettre à jour les placeholders
-            const descInput = document.querySelector('.item-description');
-            if (descInput) {
-                const placeholders = {
-                    consulting: 'Ex: Formation Cybersécurité',
-                    automotive: 'Ex: Peugeot 208 1.2 PureTech',
-                    services: 'Ex: Réparation climatisation',
-                    retail: 'Ex: Smartphone Samsung Galaxy',
-                    freelance: 'Ex: Développement site web',
-                    custom: 'Ex: Article personnalisé'
-                };
-                descInput.placeholder = placeholders[currentBusiness];
-            }
+            GOOGLE_CONFIG.clientId = clientId;
+            GOOGLE_CONFIG.apiKey = apiKey;
+            
+            const googleConfig = {
+                clientId: clientId,
+                apiKey: apiKey
+            };
+            
+            localStorage.setItem('googleConfig', JSON.stringify(googleConfig));
+            showNotification('Configuration Google mise à jour !', 'success');
+            
+            // Réinitialiser l'API Google
+            initGoogleAPI();
         }
 
         // === GOOGLE API INTEGRATION ===
@@ -1322,13 +1383,26 @@ ${companyConfig.companyName}</p>
             const saved = localStorage.getItem('companyConfig');
             if (saved) {
                 companyConfig = JSON.parse(saved);
-                Object.keys(companyConfig).forEach(key => {
-                    const element = document.getElementById('config' + key.charAt(0).toUpperCase() + key.slice(1));
-                    if (element) {
-                        element.value = companyConfig[key];
-                    }
-                });
+            } else {
+                // Configuration par défaut pour Haji, Mohamad
+                companyConfig = {
+                    companyName: 'Haji, Mohamad',
+                    companyActivity: 'Conseil Informatique & Cybersécurité',
+                    companyAddress: '149 Rue Bruyn, 1120 Bruxelles',
+                    companyPhone: '+32 489 60 68 62',
+                    companyEmail: 'redtigerr73@gmail.com',
+                    companyVAT: 'BE1004992056',
+                    bankIBAN: 'BE75 7320 7326 4151'
+                };
             }
+            
+            // Remplir les champs
+            Object.keys(companyConfig).forEach(key => {
+                const element = document.getElementById('config' + key.charAt(0).toUpperCase() + key.slice(1));
+                if (element) {
+                    element.value = companyConfig[key];
+                }
+            });
         }
 
         function saveConfiguration() {
